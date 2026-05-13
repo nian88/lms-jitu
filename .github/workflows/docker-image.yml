@@ -1,0 +1,49 @@
+name: Build and Push Docker Image
+
+# Tentukan kapan workflow ini akan berjalan
+on:
+  push:
+    branches: [ "main" ]  # Jalankan pada push ke cabang main
+    # Opsional: Jalankan juga saat Anda membuat tag rilis baru (misalnya v1.0, v2.1)
+    tags: [ "v*" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Langkah 1: Checkout kode sumber
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Langkah 2: Setup Docker Buildx (opsional, tapi direkomendasikan untuk fitur build canggih)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Langkah 3: Login ke Docker Hub menggunakan Secrets
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Langkah 4: Ekstrak metadata (tag, label) untuk Docker
+      # Ini akan membuat tag secara otomatis berdasarkan cabang dan tag git
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/nama-repo-docker-anda  # Ganti dengan nama repositori Docker Hub Anda
+          tags: |
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      # Langkah 5: Bangun dan dorong image Docker
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .  # Lokasi Dockerfile
+          push: true  # Dorong image setelah berhasil dibangun
+          tags: ${{ steps.meta.outputs.tags }}  # Gunakan tag yang dihasilkan langkah sebelumnya
+          labels: ${{ steps.meta.outputs.labels }}
