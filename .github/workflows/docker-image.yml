@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 # Tentukan kapan workflow ini akan berjalan
 on:
   push:
-    branches: [ "main" ]  # Jalankan pada push ke cabang main
+    branches: [ "cicd" ]  # Jalankan pada push ke cabang main
     # Opsional: Jalankan juga saat Anda membuat tag rilis baru (misalnya v1.0, v2.1)
     tags: [ "v*" ]
 
@@ -33,7 +33,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/nama-repo-docker-anda  # Ganti dengan nama repositori Docker Hub Anda
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/php84-fpm-node20-composer  # Ganti dengan nama repositori Docker Hub Anda
           tags: |
             type=ref,event=branch
             type=ref,event=tag
