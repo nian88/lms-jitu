@@ -6,6 +6,8 @@ on:
     branches: [ "cicd" ]  # Jalankan pada push ke cabang main
     # Opsional: Jalankan juga saat Anda membuat tag rilis baru (misalnya v1.0, v2.1)
     tags: [ "v*" ]
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-and-push:
@@ -47,3 +49,5 @@ jobs:
           push: true  # Dorong image setelah berhasil dibangun
           tags: ${{ steps.meta.outputs.tags }}  # Gunakan tag yang dihasilkan langkah sebelumnya
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
